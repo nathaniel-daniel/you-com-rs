@@ -1,0 +1,32 @@
+[package]
+name = "you-com"
+version = "0.0.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+futures-util = { version = "0.3.30", default-features = false }
+itoa = "1.0.11"
+nd-tokio-sse-codec = { git = "https://github.com/nathaniel-daniel/nd-tokio-sse-codec-rs", version = "0.0.0" }
+reqwest = { version = "0.12.4", features = [ "http2", "stream" ], default-features = false }
+serde = { version = "1.0.203", features = [ "derive" ] }
+serde_json = "1.0.117"
+thiserror = "1.0.61"
+tokio-stream = "0.1.15"
+tokio-util = "0.7.11"
+url = "2.5.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = [ "macros" ] }
+
+[features]
+default = [
+    "rustls-tls"
+]
+native-tls = [
+    "reqwest/native-tls",
+    "reqwest/native-tls-alpn",
+]
+rustls-tls = [
+    "reqwest/rustls-tls"
+]
