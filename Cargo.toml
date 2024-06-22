@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "you-com",
+    "you-com-py",
 ]
 
 [profile.release]
