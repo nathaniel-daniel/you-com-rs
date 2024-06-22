@@ -75,55 +75,57 @@ impl Chat {
     }
 
     /// Create a message and get the response.
-    pub fn send_message(&self, question: String) -> PyResult<ChatResponseStream> {
-        let tokio_rt = TOKIO_RUNTIME
-            .as_ref()
-            .context("failed to init tokio runtime")?;
+    pub fn send_message(&self, py: Python<'_>, question: String) -> PyResult<ChatResponseStream> {
+        py.allow_threads(|| {
+            let tokio_rt = TOKIO_RUNTIME
+                .as_ref()
+                .context("failed to init tokio runtime")?;
 
-        let mut chat = self
-            .chat
-            .clone()
-            .try_write_owned()
-            .ok()
-            .context("chat is busy")?;
+            let mut chat = self
+                .chat
+                .clone()
+                .try_write_owned()
+                .ok()
+                .context("chat is busy")?;
 
-        let rx = tokio_rt.block_on(async move {
-            let mut stream = CLIENT.chat(&question, &chat).await?;
+            let rx = tokio_rt.block_on(async move {
+                let mut stream = CLIENT.chat(&question, &chat).await?;
 
-            let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-            tokio::spawn(async move {
-                let mut answer = String::new();
-                let mut stream_error = None;
+                let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+                tokio::spawn(async move {
+                    let mut answer = String::new();
+                    let mut stream_error = None;
 
-                while let Some(event) = stream.next().await {
-                    let event = match event.context("invalid event") {
-                        Ok(event) => event,
-                        Err(error) => {
-                            stream_error = Some(error);
-                            break;
+                    while let Some(event) = stream.next().await {
+                        let event = match event.context("invalid event") {
+                            Ok(event) => event,
+                            Err(error) => {
+                                stream_error = Some(error);
+                                break;
+                            }
+                        };
+
+                        if let you_com::ChatEvent::Token { token } = event {
+                            answer.push_str(&token);
+                            let _ = tx.send(Ok(token)).is_ok();
                         }
-                    };
-
-                    if let you_com::ChatEvent::Token { token } = event {
-                        answer.push_str(&token);
-                        let _ = tx.send(Ok(token)).is_ok();
                     }
-                }
 
-                match stream_error {
-                    Some(error) => {
-                        let _ = tx.send(Err(error)).is_ok();
+                    match stream_error {
+                        Some(error) => {
+                            let _ = tx.send(Err(error)).is_ok();
+                        }
+                        None => {
+                            chat.push(you_com::ChatMessage { question, answer });
+                        }
                     }
-                    None => {
-                        chat.push(you_com::ChatMessage { question, answer });
-                    }
-                }
-            });
+                });
 
-            anyhow::Ok(rx)
-        })?;
+                anyhow::Ok(rx)
+            })?;
 
-        Ok(ChatResponseStream { rx })
+            Ok(ChatResponseStream { rx })
+        })
     }
 
     pub fn __str__(&self) -> String {
@@ -183,13 +185,8 @@ impl ChatResponseStream {
         slf
     }
 
-    fn __next__<'a>(
-        mut slf: PyRefMut<'_, Self>,
-        py: Python<'a>,
-    ) -> PyResult<Option<Bound<'a, PyString>>> {
-        slf.rx
-            .blocking_recv()
-            .transpose()
+    fn __next__<'a>(&mut self, py: Python<'a>) -> PyResult<Option<Bound<'a, PyString>>> {
+        py.allow_threads(|| self.rx.blocking_recv().transpose())
             .map(|token| token.map(|token| PyString::new_bound(py, &token)))
             .map_err(Into::into)
     }
