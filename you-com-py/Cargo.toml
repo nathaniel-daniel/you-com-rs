@@ -1,0 +1,16 @@
+[package]
+name = "you-com-py"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+name = "you_com_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0.86"
+once_cell = "1.19.0"
+pyo3 = { version = "0.21.1", features = [ "abi3", "abi3-py37", "anyhow", "extension-module" ] }
+tokio = { version = "1.38.0", features = ["rt-multi-thread"] }
+tokio-stream = "0.1.15"
+you-com = { version = "0.0.0", path = "../you-com" }
