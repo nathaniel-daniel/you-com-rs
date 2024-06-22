@@ -44,6 +44,8 @@ pub enum Error {
 mod test {
     use super::*;
 
+    // you.com blocks the IP of Github's CI
+    #[ignore]
     #[tokio::test]
     async fn it_works() {
         let client = Client::new();
