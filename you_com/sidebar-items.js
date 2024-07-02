@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChatEvent","Error"],"struct":["ChatMessage","ChatResponseStream","Client"]};
