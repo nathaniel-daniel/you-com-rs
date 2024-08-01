@@ -9,9 +9,9 @@ futures-util = { version = "0.3.30", default-features = false }
 itoa = "1.0.11"
 nd-tokio-sse-codec = { git = "https://github.com/nathaniel-daniel/nd-tokio-sse-codec-rs", version = "0.0.0" }
 reqwest = { version = "0.12.4", features = [ "http2", "stream" ], default-features = false }
-serde = { version = "1.0.203", features = [ "derive" ] }
-serde_json = "1.0.119"
-thiserror = "1.0.61"
+serde = { version = "1.0.204", features = [ "derive" ] }
+serde_json = "1.0.121"
+thiserror = "1.0.63"
 tokio-stream = "0.1.15"
 tokio-util = "0.7.11"
 url = "2.5.1"
