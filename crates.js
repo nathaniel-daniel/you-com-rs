@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["you_com","you_com_py"];

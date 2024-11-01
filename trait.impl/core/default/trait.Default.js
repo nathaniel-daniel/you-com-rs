@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"you_com":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.81.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"you_com/struct.Client.html\" title=\"struct you_com::Client\">Client</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
