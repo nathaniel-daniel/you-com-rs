@@ -8,6 +8,11 @@ updates:
     default:
       patterns:
         - "*"
+      exclude-patterns:
+        - "pyo3"
+    python-bindings:
+      patterns:
+        - "pyo3"
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
